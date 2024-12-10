@@ -44,7 +44,9 @@ RUN apt-get update -qq \
         -yqq --no-install-recommends \
         build-essential \
         python3 \
+        libaio1 alien wget \
         zstd
+
 
 ENV BUILD_CMD=${NPM_BUILD_CMD} \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -113,9 +115,14 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
         libpq-dev \
         libecpg-dev \
         libldap2-dev \
+        libaio1 alien wget \
     && touch superset/static/version_info.json \
     && chown -R superset:superset ./* \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+RUN wget --no-check-certificate http://yum.oracle.com/repo/OracleLinux/OL7/oracle/instantclient/x86_64/getPackage/oracle-instantclient19.6-basic-19.6.0.0.0-1.x86_64.rpm -O /tmp/oracle-instantclient.rpm && \
+    alien -i --scripts /tmp/oracle-instantclient.rpm &&  /bin/rm -f /tmp/oracle-instantclient.rpm  
+
 
 COPY --chown=superset:superset pyproject.toml setup.py MANIFEST.in README.md ./
 # setup.py uses the version information in package.json
